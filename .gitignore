@@ -361,3 +361,7 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/Docked/Core/Compression
+/Docked/mongocrypt.dll
+/Docked/libmongocrypt.so
+/Docked/libmongocrypt.dylib
