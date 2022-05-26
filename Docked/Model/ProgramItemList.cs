@@ -1,27 +1,42 @@
-﻿using Docked.Util;
+﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 
 namespace Docked.Model
 {
-   public class ProgramItemList
+   public class ProgramItemList : IDisposable
    {
-      public ObservableDictionary<string, int> AllTags { get; private set; }
-      public ObservableCollection<ProgramItem> ProgramItems { get; private set; }
+      #region Private properties
+      private bool _disposed = false;
 
+      private Dictionary<string,int> _allTagsInternal = new Dictionary<string,int>();
+      #endregion
+
+      #region Public properties
+      public ObservableCollection<string> AllTags { get; private set; }
+      public ObservableCollection<ProgramItem> ProgramItems { get; private set; }
+      #endregion
+
+      #region Constructors
       public ProgramItemList()
       {
-         AllTags = new ObservableDictionary<string, int>();
+         AllTags = new ObservableCollection<string>();
          ProgramItems = new ObservableCollection<ProgramItem>();
          ProgramItems.CollectionChanged += OnCollectionChanged;
       }
+      #endregion
 
+      #region Finalizer
       ~ProgramItemList()
       {
-         ProgramItems.CollectionChanged -= OnCollectionChanged;
+         if (!_disposed)
+            Dispose();
       }
+      #endregion
 
+      #region EventHandlers
       private void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
       {
          switch (e.Action)
@@ -67,7 +82,9 @@ namespace Docked.Model
                break;
          }
       }
+      #endregion
 
+      #region Private helper functions
       private void AddNewItems(IList items)
       {
          foreach (ProgramItem item in items)
@@ -90,21 +107,30 @@ namespace Docked.Model
 
       private void AddTag(string tag)
       {
-         if (!AllTags.ContainsKey(tag))
-            AllTags.Add(tag, 0);
-         AllTags[tag]++;
+         if (!_allTagsInternal.ContainsKey(tag))
+         {
+            _allTagsInternal.Add(tag, 0);
+            AllTags.Add(tag);
+         }
+         _allTagsInternal[tag]++;
       }
 
       private void RemoveTag(string tag)
       {
-         if (AllTags[tag] == 1)
+         if (_allTagsInternal[tag] == 1) 
+         {
+            _allTagsInternal.Remove(tag);
             AllTags.Remove(tag);
+         }
          else
-            AllTags[tag]--;
+            _allTagsInternal[tag]--;
       }
+      #endregion
 
+      #region Public helper functions
       public void ClearProgramItems(ObservableCollection<ProgramItem> collection)
       {
+         _allTagsInternal.Clear();
          AllTags.Clear();
          foreach (var item in collection)
             item.Tags.CollectionChanged -= OnTagsChanged;
@@ -115,10 +141,17 @@ namespace Docked.Model
          foreach (var tag in collection)
             RemoveTag(tag);
       }
+      #endregion
 
       public override string ToString()
       {
          return $"AllTags: ({string.Join(", ", AllTags)})\n\t{string.Join("\n\t", ProgramItems)}";
+      }
+
+      public void Dispose()
+      {
+         ProgramItems.CollectionChanged -= OnCollectionChanged;
+         _disposed = true;
       }
    }
 }

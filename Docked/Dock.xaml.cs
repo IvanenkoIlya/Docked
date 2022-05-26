@@ -1,4 +1,6 @@
-﻿using Docked.UserControls.MainContentControls;
+﻿using Docked.Controls.UserControls;
+using Docked.Controls.UserControls.MainContentControls;
+using Docked.Util.MongoDB;
 using MahApps.Metro.Controls;
 using Microsoft.Win32;
 using System;
@@ -11,6 +13,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Media;
+using System.Windows.Threading;
 
 namespace Docked
 {
@@ -21,10 +24,23 @@ namespace Docked
    {
       private string _appName = "Docked";
       private bool _startWithWindows;
+      private bool _stayOpen;
       private bool _closing = false;
       private int _contentControlIndex;
       public double DesktopHeight { get; private set; } = SystemParameters.WorkArea.Height;
       public ObservableCollection<MainContentControlBase> MainContentControls;
+
+      public bool StayOpen
+      {
+         get => _stayOpen;
+         set
+         {
+            if(_stayOpen == value)
+               return;
+            _stayOpen = value;
+            OnPropertyChanged();
+         }
+      }
 
       public bool StartWithWindows
       {
@@ -47,7 +63,16 @@ namespace Docked
 
          Left = SystemParameters.WorkArea.Width - Width;
 
-         DockedFlyout.ClosingFinished += (sender, args) => { _closing = false; };
+         DockedFlyout.ClosingFinished += (sender, args) => 
+         { 
+            _closing = false;
+            UpdateLayout();
+            Dispatcher.Invoke(() => { }, DispatcherPriority.ContextIdle);
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+            GC.Collect();
+            GC.WaitForFullGCComplete();
+         };
 
          MainContentControls = new ObservableCollection<MainContentControlBase>(GetAllMainContentControls());
          MainContentControl.Content = MainContentControls.First();
@@ -58,7 +83,6 @@ namespace Docked
       {
          RegistryKey rk = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
          _startWithWindows = rk.GetValue(_appName) != null;
-         //var _ = DockedSettings.Instance.GetSettings<GlobalSettings>("Global"); // Force load settings
       }
 
       private IEnumerable<MainContentControlBase> GetAllMainContentControls(params object[] constructorArgs)
@@ -97,13 +121,25 @@ namespace Docked
          MainContentControl.Content = MainContentControls[_contentControlIndex];
       }
 
+      private void CloseAll(object sender, RoutedEventArgs e)
+      {
+         if(MainContentControl.Content is ProgramListControl)
+         {
+            foreach(ProgramItemControl item in ((ProgramListControl)MainContentControl.Content).ProgramItemsCollectionView.SourceCollection)
+            {
+               item.CloseEditGrid(this, null);
+            }
+         }
+      }
+
       protected override void OnDeactivated(EventArgs e)
       {
-         //if(DockedFlyout.IsOpen)
-         //{
-         //   _closing = true;
-         //   DockedFlyout.IsOpen = false;
-         //}
+         if (DockedFlyout.IsOpen && !StayOpen)
+         {
+            _closing = true;
+            DockedFlyout.IsOpen = false;
+            ProgramItemListDBManager.UpdateDB();
+         }
 
          base.OnDeactivated(e);
       }
@@ -115,8 +151,8 @@ namespace Docked
 
       protected override void OnClosing(CancelEventArgs e)
       {
-         //DockedSettings.SaveSettings();
          TaskbarIcon.Visibility = Visibility.Collapsed;
+         ProgramItemListDBManager.UpdateDB();
 
          base.OnClosing(e);
       }

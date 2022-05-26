@@ -1,4 +1,5 @@
 ﻿using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 
 namespace Docked.Util
@@ -20,6 +21,20 @@ namespace Docked.Util
          using (MemoryStream ms = new MemoryStream(byteArrayIn))
             ret = Image.FromStream(ms);
          return ret;
+      }
+
+      public static string ImageFilter = "";
+
+      static ImageUtil()
+      {
+         ImageCodecInfo[] codecs = ImageCodecInfo.GetImageEncoders();
+         string sep = string.Empty;
+         foreach (ImageCodecInfo codecInfo in codecs)
+         {
+            string codecName = codecInfo.CodecName.Substring(8).Replace("Codec", "Files").Trim();
+            ImageFilter = $"{ImageFilter}{sep}{codecName} ({codecInfo.FilenameExtension})|{codecInfo.FilenameExtension}";
+            sep = "|";
+         }
       }
    }
 }

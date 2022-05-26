@@ -76,12 +76,12 @@ namespace Docked.Util
       }
 
       /*
-       https://steamcdn-a.akamaihd.net/steam/apps/255220/header.jpg
-https://steamcdn-a.akamaihd.net/steam/apps/255220/logo.png
-https://steamcdn-a.akamaihd.net/steam/apps/255220/library_hero.jpg
-https://steamcdn-a.akamaihd.net/steam/apps/255220/library_600x900.jpg (actually 300x450)
-https://steamcdn-a.akamaihd.net/steam/apps/255220/page_bg_generated.jpg
-https://steamcdn-a.akamaihd.net/steam/apps/255220/page_bg_generated_v6b.jpg
+       https://steamcdn-a.akamaihd.net/steam/apps/977950/header.jpg
+https://steamcdn-a.akamaihd.net/steam/apps/977950/logo.png
+https://steamcdn-a.akamaihd.net/steam/apps/977950/library_hero.jpg
+https://steamcdn-a.akamaihd.net/steam/apps/977950/library_600x900.jpg (actually 300x450)
+https://steamcdn-a.akamaihd.net/steam/apps/977950/page_bg_generated.jpg
+https://steamcdn-a.akamaihd.net/steam/apps/977950/page_bg_generated_v6b.jpg
        */
    }
 }

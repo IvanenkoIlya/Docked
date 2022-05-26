@@ -1,0 +1,139 @@
+﻿<local:MainContentControlBase x:Class="Docked.Controls.UserControls.MainContentControls.ProgramListControl"
+                              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                              xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+                              xmlns:icons="http://metro.mahapps.com/winfx/xaml/iconpacks"
+                              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                              xmlns:docked="clr-namespace:Docked.Controls.UserControls"
+                              xmlns:converters="clr-namespace:Docked.Util.Converters"
+                              xmlns:local="clr-namespace:Docked.Controls.UserControls.MainContentControls"
+                              xmlns:system="clr-namespace:System;assembly=System.Runtime"
+                              DataContext="{Binding RelativeSource={RelativeSource Self}}"
+                              d:DesignHeight="600" 
+                              d:DesignWidth="480"
+                              mc:Ignorable="d">
+   <local:MainContentControlBase.Resources>
+      <ResourceDictionary>
+         <ResourceDictionary.MergedDictionaries>
+            <ResourceDictionary Source="/Docked;component/Resources/Styles/GeneralStyles.xaml"/>
+            <ResourceDictionary Source="/Docked;component/Resources/Styles/ProgramListControlStyles.xaml"/>
+         </ResourceDictionary.MergedDictionaries>
+         <converters:InverseBooleanConverter x:Key="InverseBooleanConverter" />
+         <converters:DimensionsToStrokeDashArrayConverter x:Key="DimensionsToStrokeDashArrayConverter"/>
+      </ResourceDictionary>
+   </local:MainContentControlBase.Resources>
+
+   <DockPanel MouseRightButtonDown="BackgroundRightClick"
+              MaxHeight="{Binding ActualHeight, 
+                                   RelativeSource={RelativeSource FindAncestor, 
+                                                                  AncestorType={x:Type mah:TransitioningContentControl}}}">
+      <!-- Search bar -->
+      <StackPanel x:Name="SearchPanel" 
+                  Margin="10 10 10 0"
+                  VerticalAlignment="Top"
+                  DockPanel.Dock="Top">
+         <DockPanel FlowDirection="RightToLeft">
+            <Grid>
+               <Button x:Name="FilterButton" 
+                       Click="OpenTagList"
+                       Style="{DynamicResource FilterButtonStyle}">
+                  <icons:PackIconRemixIcon Kind="Filter3Line" 
+                                           HorizontalAlignment="Center" 
+                                           VerticalAlignment="Center"/>
+               </Button>
+               <Popup Name="SelectedTagsPopup"
+                      Placement="Bottom"
+                      IsOpen="{Binding IsTagsDropDownOpen}"
+                      StaysOpen="False">
+                  <ListView x:Name="SelectedTags"
+                            DataContext="{Binding ProgramItemList}"
+                            ItemsSource="{Binding AllTags}"
+                            Style="{DynamicResource TagListViewStyle}"
+                            SelectionMode="Multiple"
+                            SelectionChanged="OnSelectedTagsChanged"/>
+               </Popup>
+            </Grid>
+            <TextBox x:Name="SearchBar" 
+                     Style="{DynamicResource SearchBarStyle}"
+                     TextChanged="OnSearchTextChanged">
+            </TextBox>
+         </DockPanel>
+
+         <ListBox Background="Transparent"
+                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                  ItemsSource="{Binding ElementName=SelectedTags, Path=SelectedItems}"
+                  ItemContainerStyle="{DynamicResource TagItemStyle}"
+                  d:DisplayMemberPath=""
+                  Margin="0 5 0 0"
+                  Button.Click="RemoveTag">
+            <d:ListBox.ItemsSource>
+               <x:Array Type="{x:Type system:String}">
+                  <system:String>Test</system:String>
+                  <system:String>Longer Test</system:String>
+               </x:Array>
+            </d:ListBox.ItemsSource>
+            <ListBox.ItemsPanel>
+               <ItemsPanelTemplate>
+                  <WrapPanel />
+               </ItemsPanelTemplate>
+            </ListBox.ItemsPanel>
+         </ListBox>
+         <Separator Margin="0 5 0 0" Background="{DynamicResource MahApps.Brushes.Flyout.Foreground}" Opacity="0.4"/>
+      </StackPanel>
+
+      <!-- Program list -->
+      <Grid PreviewDragEnter="ProgramListDragEnter"
+            PreviewDragLeave="ProgramListDragLeave"
+            Drop="ProgramListDrop"
+            Background="Transparent"
+            AllowDrop="True">
+         <ScrollViewer x:Name="MyScrollViewer"
+                       Margin="5"
+                       VerticalScrollBarVisibility="Auto"
+                       HorizontalAlignment="Center"
+                       HorizontalScrollBarVisibility="Disabled"
+                       d:VerticalScrollBarVisibility="Visible"
+                       Style="{DynamicResource SleekScrollViewerStyle}">
+            <ItemsControl x:Name="ProgramList" 
+                          Background="Transparent">
+               <ItemsControl.ItemsPanel>
+                  <ItemsPanelTemplate>
+                     <docked:AnimatedHexListPanel Columns="5"/>
+                  </ItemsPanelTemplate>
+               </ItemsControl.ItemsPanel>
+
+               <ItemsControl.ItemsSource>
+                  <CompositeCollection>
+                     <Button x:Name="AddNewItemButton"
+                             HorizontalAlignment="Left"
+                             VerticalAlignment="Top"
+                             Foreground="{DynamicResource MahApps.Brushes.Gray8}"
+                             Style="{DynamicResource AddHexButtonStyle}"
+                             Click="AddNewProgramItem"/>
+                  </CompositeCollection>
+               </ItemsControl.ItemsSource>
+            </ItemsControl>
+         </ScrollViewer>
+         <Grid x:Name="ProgamListDropOverlay"
+               Visibility="Hidden"
+               d:Visibility="Visible"
+               Background="Black"
+               Opacity="0.4">
+            <Rectangle Stroke="{DynamicResource MahApps.Brushes.Gray8}"
+                       StrokeThickness="15"
+                       Margin="10"
+                       RadiusX="30"
+                       RadiusY="30">
+            </Rectangle>
+            <Label Content="Drop"
+                   FontSize="50"
+                   Foreground="{DynamicResource MahApps.Brushes.Gray8}"
+                   FontWeight="Bold"
+                   VerticalAlignment="Center"
+                   HorizontalAlignment="Center"/>
+         </Grid>
+      </Grid>
+      
+   </DockPanel>
+</local:MainContentControlBase>

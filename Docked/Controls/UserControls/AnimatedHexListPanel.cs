@@ -6,10 +6,12 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 
-namespace Docked.UserControls
+namespace Docked.Controls.UserControls
 {
    public class AnimatedHexListPanel : Panel
    {
+      // TODO: There is a memory bug where WPF doesn't properly release user controls if their name is still referenced in a namescope.
+
       #region DependencyProperties
       public static readonly DependencyProperty ColumnsProperty =
          DependencyProperty.Register("Columns", typeof(int), typeof(AnimatedHexListPanel),
@@ -22,15 +24,16 @@ namespace Docked.UserControls
       }
       #endregion
 
-      private readonly double duration = 200;
+      private readonly double duration = 200; //200
       private Dictionary<int, Point> previousPositions = new Dictionary<int, Point>();
+      private List<string> _registeredNames = new List<string>();
+
       public Storyboard ArrangeStoryboard;
 
       public AnimatedHexListPanel()
       {
          Background = Brushes.Transparent;
          ArrangeStoryboard = new Storyboard();
-         ArrangeStoryboard.Completed += ResetStoryboard;
       }
 
       protected override Size MeasureOverride(Size availableSize)
@@ -63,8 +66,9 @@ namespace Docked.UserControls
                {
                   var child = InternalChildren[index];
                   groupSize.Width = Math.Max(groupSize.Width, child.DesiredSize.Width * (Columns + 0.5));
-                  groupSize.Height = Math.Max(groupSize.Height, child.DesiredSize.Height * ((exclusiveIndex - lastGroupIndex - 1) / Columns + 1));// Not quite right, need to adjust for 0.75
+                  groupSize.Height = Math.Max(groupSize.Height, child.DesiredSize.Height * ((exclusiveIndex - lastGroupIndex - 1) / Columns + 1));
                }
+
                idealSize.Width = Math.Max(idealSize.Width, Math.Max(groupSize.Width, InternalChildren[index].DesiredSize.Width));
                idealSize.Height += groupSize.Height + InternalChildren[index].DesiredSize.Height;
                index++;
@@ -82,7 +86,7 @@ namespace Docked.UserControls
                {
                   var child = InternalChildren[index];
                   groupSize.Width = Math.Max(groupSize.Width, child.DesiredSize.Width * (Columns + 0.5));
-                  groupSize.Height = Math.Max(groupSize.Height, child.DesiredSize.Height * ((InternalChildren.Count - lastGroupIndex - 1) / Columns + 1)); // Not quite right, need to adjust for 0.75
+                  groupSize.Height = Math.Max(groupSize.Height, child.DesiredSize.Height * ((InternalChildren.Count - lastGroupIndex - 1) / Columns + 1)); 
                }
 
                idealSize.Width = Math.Max(idealSize.Width, groupSize.Width);
@@ -111,7 +115,6 @@ namespace Docked.UserControls
          }
 
          ComplexAnimate(finalSize);
-
          return finalSize;
       }
 
@@ -121,13 +124,13 @@ namespace Docked.UserControls
          ArrangeStoryboard.Children.Clear();
          NameScope.SetNameScope(this, new NameScope());
 
-         Dictionary<int,Point> newPositions = new Dictionary<int,Point>();
+         var newPositions = new Dictionary<int, Point>();
 
          int groupIndex = 0;
-         Point groupStartingPoint = new Point(0, 0);
-         Point nextGroupStartingPoint = new Point(0, 0);
+         var groupStartingPoint = new Point(0, 0);
+         var nextGroupStartingPoint = new Point(0, 0);
 
-         for(int i = 0; i < InternalChildren.Count; i++)
+         for (int i = 0; i < InternalChildren.Count; i++)
          {
             var child = InternalChildren[i];
             int hash = child is ContentPresenter ? (child as ContentPresenter).Content.GetHashCode() : child.GetHashCode();
@@ -147,44 +150,50 @@ namespace Docked.UserControls
                };
                groupStartingPoint.Y += child.DesiredSize.Height;
                groupIndex = 0;
-            } 
+            }
             else
             {
                int x = groupIndex % Columns, y = groupIndex / Columns;
                nextPoint = new Point()
                {
-                  X = child.DesiredSize.Width * (x + (y % 2 /2.0)) + groupStartingPoint.X,
+                  X = child.DesiredSize.Width * (x + y % 2 / 2.0) + groupStartingPoint.X,
                   Y = 0.75 * y * child.DesiredSize.Height + groupStartingPoint.Y
                };
-               nextGroupStartingPoint.Y = ((groupIndex/ Columns + 1) * 0.75 + 0.25) * child.DesiredSize.Height;
+               nextGroupStartingPoint.Y = ((groupIndex / Columns + 1) * 0.75 + 0.25) * child.DesiredSize.Height;
                groupIndex++;
             }
 
             newPositions[hash] = nextPoint;
-            Animate(child, prevPoint.X , prevPoint.Y, nextPoint.X, nextPoint.Y, duration, hash);
+            Animate(child, prevPoint.X, prevPoint.Y, nextPoint.X, nextPoint.Y, duration, hash);
          }
 
          previousPositions = newPositions;
+         ArrangeStoryboard.Completed += ResetStoryboard;
          ArrangeStoryboard.Begin(this);
       }
 
       private void Animate(UIElement element, double fromX, double fromY, double toX, double toY, double duration, int hash)
       {
-         var trans = (TranslateTransform)((TransformGroup)element.RenderTransform).Children[0];
-         RegisterName($"TranslateTransform{hash}", trans);
+         var translate = (TranslateTransform)((TransformGroup)element.RenderTransform).Children[0];
+         string name = $"TranslateTransform{hash}";
+         RegisterName(name, translate);
+         _registeredNames.Add(name);
 
          if (duration == 0)
          {
-            trans.X = toX;
-            trans.Y = toY;
+            translate.X = toX;
+            translate.Y = toY;
          }
          else
          {
             var animX = CreateAnimation(fromX, toX, duration);
             var animY = CreateAnimation(fromY, toY, duration);
 
-            Storyboard.SetTargetName(animX, $"TranslateTransform{hash}");
-            Storyboard.SetTargetName(animY, $"TranslateTransform{hash}");
+            //translate.BeginAnimation(TranslateTransform.XProperty, animX);
+            //translate.BeginAnimation(TranslateTransform.YProperty, animY);
+
+            Storyboard.SetTargetName(animX, name);
+            Storyboard.SetTargetName(animY, name);
             Storyboard.SetTargetProperty(animX, new PropertyPath(TranslateTransform.XProperty));
             Storyboard.SetTargetProperty(animY, new PropertyPath(TranslateTransform.YProperty));
 
@@ -195,7 +204,15 @@ namespace Docked.UserControls
 
       private void ResetStoryboard(object sender, EventArgs e)
       {
+         foreach (string name in _registeredNames)
+         {
+            if(FindName(name) != null)
+               UnregisterName(name);
+         }
+         _registeredNames.Clear();
+         ArrangeStoryboard.Completed -= ResetStoryboard;
          ArrangeStoryboard.Children.Clear();
+         UpdateLayout();
       }
 
       private DoubleAnimation CreateAnimation(double from, double to, double duration)
@@ -205,7 +222,7 @@ namespace Docked.UserControls
 
       private DoubleAnimation CreateAnimation(double from, double to, double duration, EventHandler endEvent)
       {
-         DoubleAnimation anim = new DoubleAnimation(from, to, TimeSpan.FromMilliseconds(duration))
+         var anim = new DoubleAnimation(from, to, TimeSpan.FromMilliseconds(duration))
          {
             AccelerationRatio = 0.2,
             DecelerationRatio = 0.7,
@@ -250,9 +267,9 @@ namespace Docked.UserControls
          {
             var child = InternalChildren[i];
             int x = i % Columns, y = i / Columns;
-            Point nextPos = new Point()
+            var nextPos = new Point()
             {
-               X = child.DesiredSize.Width * (x + (y % 2 / 2.0)),
+               X = child.DesiredSize.Width * (x + y % 2 / 2.0),
                Y = 0.75 * y * child.DesiredSize.Height
             };
             Animate(child, 0, 0, nextPos.X, nextPos.Y, duration, 0);

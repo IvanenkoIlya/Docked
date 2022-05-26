@@ -2,7 +2,7 @@
 using System.ComponentModel;
 using System.Windows.Controls;
 
-namespace Docked.UserControls.MainContentControls
+namespace Docked.Controls.UserControls.MainContentControls
 {
    [TypeDescriptionProvider(typeof(AbstractControlDescriptionProvider<MainContentControlBase, UserControl>))]
    public abstract class MainContentControlBase : UserControl

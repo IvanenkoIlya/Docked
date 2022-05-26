@@ -1,6 +1,4 @@
-﻿using System.Windows.Controls;
-
-namespace Docked.UserControls.MainContentControls
+﻿namespace Docked.Controls.UserControls.MainContentControls
 {
    /// <summary>
    /// Interaction logic for SettingsControl.xaml
