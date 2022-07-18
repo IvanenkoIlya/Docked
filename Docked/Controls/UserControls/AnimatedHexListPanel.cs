@@ -86,7 +86,7 @@ namespace Docked.Controls.UserControls
                {
                   var child = InternalChildren[index];
                   groupSize.Width = Math.Max(groupSize.Width, child.DesiredSize.Width * (Columns + 0.5));
-                  groupSize.Height = Math.Max(groupSize.Height, child.DesiredSize.Height * ((InternalChildren.Count - lastGroupIndex - 1) / Columns + 1)); 
+                  groupSize.Height = Math.Max(groupSize.Height, child.DesiredSize.Height * ((InternalChildren.Count - lastGroupIndex - 1) / Columns + 1));
                }
 
                idealSize.Width = Math.Max(idealSize.Width, groupSize.Width);
@@ -206,7 +206,7 @@ namespace Docked.Controls.UserControls
       {
          foreach (string name in _registeredNames)
          {
-            if(FindName(name) != null)
+            if (FindName(name) != null)
                UnregisterName(name);
          }
          _registeredNames.Clear();

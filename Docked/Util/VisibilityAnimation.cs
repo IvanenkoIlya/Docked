@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media.Animation;
-using System.Linq;
 
 namespace Docked.Util
 {
@@ -111,7 +110,7 @@ namespace Docked.Util
          if (element == null)
             return baseValue;
 
-         if(!element.IsLoaded)
+         if (!element.IsLoaded)
             return baseValue;
 
          Visibility currentVisibility = element.Visibility;
@@ -135,7 +134,7 @@ namespace Docked.Util
 
          animation.Completed += (sender, args) =>
          {
-            if(targetVisibility == Visibility.Visible)
+            if (targetVisibility == Visibility.Visible)
             {
                UpdateAnimation(element);
             }

@@ -20,7 +20,7 @@ namespace Docked.Util.Extentions
 
       public bool ReceiveWeakEvent(Type managerType, object sender, EventArgs e)
       {
-         if (!(e is NotifyCollectionChangedEventArgs)) 
+         if (!(e is NotifyCollectionChangedEventArgs))
             return false;
          OnCollectionChanged(sender, (e as NotifyCollectionChangedEventArgs));
          return true;

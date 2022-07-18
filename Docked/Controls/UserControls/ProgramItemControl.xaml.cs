@@ -108,7 +108,7 @@ namespace Docked.Controls.UserControls
          };
          var result = await window.ShowMessageAsync(title, message, MessageDialogStyle.AffirmativeAndNegative, settings);
 
-         if(result == MessageDialogResult.Affirmative)
+         if (result == MessageDialogResult.Affirmative)
          {
             Dispose();
          }
@@ -176,7 +176,7 @@ namespace Docked.Controls.UserControls
       private void AdjustEditBoxMargin()
       {
          var corderRadius = new CornerRadius(0, 10, 0, 0);
-         if(!IsPopupOpen)
+         if (!IsPopupOpen)
             corderRadius.BottomRight = 10;
          EditBox.CornerRadius = corderRadius;
       }
@@ -191,7 +191,7 @@ namespace Docked.Controls.UserControls
       private void RemoveTag(object sender, RoutedEventArgs e)
       {
          var item = VisualTreeUtil.TryFindParent<ListBoxItem>(e.OriginalSource as Button);
-         if(item != null)
+         if (item != null)
             (DataContext as ProgramItem).Tags.Remove((string)item.Content);
       }
 

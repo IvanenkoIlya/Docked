@@ -107,7 +107,7 @@ namespace Docked.Model
             retVal.ProgramName = Path.GetFileNameWithoutExtension(file);
             retVal.ExecuteCommand = GetExecuteCommandFromFile(file);
             retVal.Icon = new ProgramItemIcon(Path.GetFileName(file), IconFromFile(file));
-            if(file.EndsWith(".lnk"))
+            if (file.EndsWith(".lnk"))
                retVal.ArgumentParameters = WshShellUtil.GetLinkArguments(file);
          }
          return retVal;
@@ -231,7 +231,8 @@ namespace Docked.Model
          try
          {
             Icon = MongoDBManager.Instance.IconBucket.DownloadAsBytes(Id);
-         } catch // if some issue occurs, set default instead
+         }
+         catch // if some issue occurs, set default instead
          {
             Id = DefaultIconId;
             FileName = defaultIconName;

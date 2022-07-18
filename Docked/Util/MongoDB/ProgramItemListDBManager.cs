@@ -66,7 +66,7 @@ namespace Docked.Util.MongoDB
          {
             var programItem = _pil.ProgramItems.FirstOrDefault(x => x.Id == (ObjectId)id["_id"]);
 
-            if(programItem != null)
+            if (programItem != null)
             {
                programItem.Icon.SaveIconToDB();
                collection.FindOneAndReplace(id, programItem);
@@ -77,8 +77,8 @@ namespace Docked.Util.MongoDB
       public void WriteNewEntries(List<ObjectId> existingIds)
       {
          var newEntries = _pil.ProgramItems.Except(_pil.ProgramItems.Where(x => existingIds.Contains(x.Id))).ToList();
-         
-         if(newEntries.Count > 0)
+
+         if (newEntries.Count > 0)
          {
             foreach (var entry in newEntries)
                entry.Icon.SaveIconToDB();

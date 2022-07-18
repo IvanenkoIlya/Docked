@@ -4,7 +4,6 @@ using Docked.Util.Extentions;
 using Docked.Util.MongoDB;
 using MahApps.Metro.Controls;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -55,7 +54,8 @@ namespace Docked.Controls.UserControls.MainContentControls
       }
 
       private ProgramItemList _programItemList;
-      public ProgramItemList ProgramItemList {
+      public ProgramItemList ProgramItemList
+      {
          get => _programItemList;
          set
          {
@@ -130,7 +130,7 @@ namespace Docked.Controls.UserControls.MainContentControls
          Keyboard.Focus(SearchBar);
          SearchBarOpen = true;
 
-         if(e.Key == Key.Escape)
+         if (e.Key == Key.Escape)
          {
             if (!string.IsNullOrEmpty(SearchBar.Text))
                SearchBar.Text = "";
@@ -172,14 +172,14 @@ namespace Docked.Controls.UserControls.MainContentControls
       #region Helper functions
       private void OpenSearchBar(int duration = 350)
       {
-         if(SearchBarOpen)
+         if (SearchBarOpen)
             SearchPanel.ApplyAnimationClock(MarginProperty,
                     new ThicknessAnimation(new Thickness(10, 10, 10, 0), TimeSpan.FromMilliseconds(duration)) { EasingFunction = new SineEase() }.CreateClock());
       }
 
       private void HideSearchBar(int duration = 350)
       {
-         if(SelectedTags.SelectedItems.Count == 0 && string.IsNullOrEmpty(SearchBar.Text))
+         if (SelectedTags.SelectedItems.Count == 0 && string.IsNullOrEmpty(SearchBar.Text))
          {
             SearchPanel.ApplyAnimationClock(MarginProperty,
                     new ThicknessAnimation(new Thickness(10, -SearchPanel.ActualHeight, 10, 0), TimeSpan.FromMilliseconds(duration)) { EasingFunction = new SineEase() }.CreateClock());
@@ -228,7 +228,7 @@ namespace Docked.Controls.UserControls.MainContentControls
          if (e.Data.GetDataPresent(DataFormats.FileDrop))
          {
             string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
-            foreach(var file in files.Where(x => IsValidFileType(x)))
+            foreach (var file in files.Where(x => IsValidFileType(x)))
             {
                var programItem = ProgramItem.FromFile(file);
                AddProgramItem(programItem);
@@ -240,7 +240,7 @@ namespace Docked.Controls.UserControls.MainContentControls
       {
          ProgramItemList.ProgramItems.Add(programItem);
          var newProgramItemControl = new ProgramItemControl() { DataContext = programItem };
-         if(openItem)
+         if (openItem)
             newProgramItemControl.TogglEditGrid(this, null);
          ProgramItemsCollectionView.AddNewItem(newProgramItemControl);
          ProgramItemsCollectionView.CommitNew();

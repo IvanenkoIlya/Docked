@@ -11,7 +11,7 @@ namespace Docked.Model
       #region Private properties
       private bool _disposed = false;
 
-      private Dictionary<string,int> _allTagsInternal = new Dictionary<string,int>();
+      private Dictionary<string, int> _allTagsInternal = new Dictionary<string, int>();
       #endregion
 
       #region Public properties
@@ -117,7 +117,7 @@ namespace Docked.Model
 
       private void RemoveTag(string tag)
       {
-         if (_allTagsInternal[tag] == 1) 
+         if (_allTagsInternal[tag] == 1)
          {
             _allTagsInternal.Remove(tag);
             AllTags.Remove(tag);

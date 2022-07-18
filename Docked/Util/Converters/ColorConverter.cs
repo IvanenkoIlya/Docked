@@ -14,9 +14,9 @@ namespace Docked.Util.Converters
          if (coef < 0.0 || coef > 1.0)
             throw new ArgumentException("Parameter must be between 0.0 and 1.0");
          coef = 1.0 - coef;
-         return new SolidColorBrush(Color.FromArgb(color.A, 
-            (byte)(color.R * coef), 
-            (byte)(color.G * coef), 
+         return new SolidColorBrush(Color.FromArgb(color.A,
+            (byte)(color.R * coef),
+            (byte)(color.G * coef),
             (byte)(color.B * coef)));
       }
 
@@ -34,8 +34,8 @@ namespace Docked.Util.Converters
          var coef = double.Parse(parameter.ToString());
          if (coef < 0.0 || coef > 1.0)
             throw new ArgumentException("Parameter must be between 0.0 and 1.0");
-         return new SolidColorBrush(Color.FromArgb(color.A, 
-            (byte)((255- color.R) * coef + color.R),
+         return new SolidColorBrush(Color.FromArgb(color.A,
+            (byte)((255 - color.R) * coef + color.R),
             (byte)((255 - color.G) * coef + color.G),
             (byte)((255 - color.B) * coef + color.B)));
       }
@@ -59,7 +59,7 @@ namespace Docked.Util.Converters
       public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
       {
          var color = (Color)value;
-         if(color == null)
+         if (color == null)
             throw new ArgumentException("Value must be a Color");
          return new SolidColorBrush(color);
       }

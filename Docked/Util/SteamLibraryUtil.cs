@@ -14,9 +14,9 @@ namespace Docked.Util
       {
          string steamDirectory = "";
 
-         using(RegistryKey key = Registry.CurrentUser.OpenSubKey(@"Software\Valve\Steam"))
+         using (RegistryKey key = Registry.CurrentUser.OpenSubKey(@"Software\Valve\Steam"))
          {
-            if(key != null)
+            if (key != null)
             {
                steamDirectory = key.GetValue("SteamPath").ToString().Replace("/", @"\");
             }
@@ -32,7 +32,7 @@ namespace Docked.Util
 
          Dictionary<int, string> results = new Dictionary<int, string>();
 
-         foreach(string file in acfFiles)
+         foreach (string file in acfFiles)
          {
             results.Add(int.Parse(Regex.Match(Path.GetFileName(file), @"appmanifest_(\d*).acf").Groups[1].Value), file);
          }
@@ -44,13 +44,14 @@ namespace Docked.Util
 
       public static string GetSteamAppNameFromAcf(string file)
       {
-         using(StreamReader sr = new StreamReader(file))
+         using (StreamReader sr = new StreamReader(file))
          {
             string line;
 
             while ((line = sr.ReadLine()) != null)
             {
-               if (line.Contains("\"name\"")) {
+               if (line.Contains("\"name\""))
+               {
                   string[] parts = line.Split('\"');
                   return parts[3];
                }

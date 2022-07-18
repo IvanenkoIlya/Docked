@@ -12,7 +12,6 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Windows;
-using System.Windows.Media;
 using System.Windows.Threading;
 
 namespace Docked
@@ -35,7 +34,7 @@ namespace Docked
          get => _stayOpen;
          set
          {
-            if(_stayOpen == value)
+            if (_stayOpen == value)
                return;
             _stayOpen = value;
             OnPropertyChanged();
@@ -63,8 +62,8 @@ namespace Docked
 
          Left = SystemParameters.WorkArea.Width - Width;
 
-         DockedFlyout.ClosingFinished += (sender, args) => 
-         { 
+         DockedFlyout.ClosingFinished += (sender, args) =>
+         {
             _closing = false;
             UpdateLayout();
             Dispatcher.Invoke(() => { }, DispatcherPriority.ContextIdle);
@@ -123,9 +122,9 @@ namespace Docked
 
       private void CloseAll(object sender, RoutedEventArgs e)
       {
-         if(MainContentControl.Content is ProgramListControl)
+         if (MainContentControl.Content is ProgramListControl)
          {
-            foreach(ProgramItemControl item in ((ProgramListControl)MainContentControl.Content).ProgramItemsCollectionView.SourceCollection)
+            foreach (ProgramItemControl item in ((ProgramListControl)MainContentControl.Content).ProgramItemsCollectionView.SourceCollection)
             {
                item.CloseEditGrid(this, null);
             }

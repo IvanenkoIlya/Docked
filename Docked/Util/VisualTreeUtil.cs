@@ -24,7 +24,7 @@ namespace Docked.Util
          T child = default(T);
 
          int numVisuals = VisualTreeHelper.GetChildrenCount(parent);
-         for(int i = 0; i < numVisuals; i++)
+         for (int i = 0; i < numVisuals; i++)
          {
             Visual v = (Visual)VisualTreeHelper.GetChild(parent, i);
             child = v as T;
