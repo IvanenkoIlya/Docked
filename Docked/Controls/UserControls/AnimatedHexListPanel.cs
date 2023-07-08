@@ -55,43 +55,46 @@ namespace Docked.Controls.UserControls
                .ToList();
 
             int index = 0;
-            int lastGroupIndex = 0;
-            foreach (int exclusiveIndex in exclusiveIndices)
-            {
-               var groupSize = new Size(
-                  double.IsInfinity(availableSize.Width) ? 0 : availableSize.Width,
-                  double.IsInfinity(availableSize.Height) ? 0 : availableSize.Height);
+            int groupCount = 0;
+            Size childSize = new Size(double.PositiveInfinity, double.PositiveInfinity);
 
-               for (; index < exclusiveIndex; index++)
+            foreach(UIElement child in InternalChildren)
+            {
+               childSize.Width = Math.Min(child.DesiredSize.Width, childSize.Width);
+               childSize.Height = Math.Min(child.DesiredSize.Height, childSize.Height);
+            }
+
+            if (double.IsInfinity(childSize.Width) || double.IsInfinity(childSize.Height))
+            {
+               childSize.Width = 0;
+               childSize.Height = 0;
+            }
+
+            while(index < InternalChildren.Count)
+            {
+               var child = InternalChildren[index];
+
+               if(RequiresOwnRow(child, availableSize))
                {
-                  var child = InternalChildren[index];
-                  groupSize.Width = Math.Max(groupSize.Width, child.DesiredSize.Width * (Columns + 0.5));
-                  groupSize.Height = Math.Max(groupSize.Height, child.DesiredSize.Height * ((exclusiveIndex - lastGroupIndex - 1) / Columns + 1));
+                  var groupSize = CalculateGroupSize(groupCount, childSize);
+                  idealSize.Width = Math.Max(idealSize.Width, Math.Max(groupSize.Width, child.DesiredSize.Width));
+                  idealSize.Height += groupSize.Height + child.DesiredSize.Height;
+
+                  groupCount = 0;
+               } 
+               else
+               {
+                  groupCount++;
                }
 
-               idealSize.Width = Math.Max(idealSize.Width, Math.Max(groupSize.Width, InternalChildren[index].DesiredSize.Width));
-               idealSize.Height += groupSize.Height + InternalChildren[index].DesiredSize.Height;
                index++;
-               lastGroupIndex = index;
             }
 
-            if (index < InternalChildren.Count)
-            {
-               var groupSize = new Size(
-                  double.IsInfinity(availableSize.Width) ? 0 : availableSize.Width,
-                  double.IsInfinity(availableSize.Height) ? 0 : availableSize.Height);
+            var lastGroupSize = CalculateGroupSize(groupCount, childSize);
+            idealSize.Width = Math.Max(idealSize.Width, lastGroupSize.Width);
+            idealSize.Height += lastGroupSize.Height;
 
-               // finish off remaining elements
-               for (; index < InternalChildren.Count; index++)
-               {
-                  var child = InternalChildren[index];
-                  groupSize.Width = Math.Max(groupSize.Width, child.DesiredSize.Width * (Columns + 0.5));
-                  groupSize.Height = Math.Max(groupSize.Height, child.DesiredSize.Height * ((InternalChildren.Count - lastGroupIndex - 1) / Columns + 1));
-               }
-
-               idealSize.Width = Math.Max(idealSize.Width, groupSize.Width);
-               idealSize.Height += groupSize.Height;
-            }
+            Console.WriteLine($"MeasureOverride idealSize: {idealSize}");
 
             return idealSize;
          }
@@ -236,6 +239,14 @@ namespace Docked.Controls.UserControls
       private bool RequiresOwnRow(UIElement child, Size availableSize)
       {
          return child.DesiredSize.Width * (Columns + 0.5) > availableSize.Width;
+      }
+
+      private Size CalculateGroupSize(int groupCount, Size elementSize)
+      {
+         return new Size(
+            elementSize.Width * (Columns + 0.5),
+            groupCount > 0 ? (((groupCount / Columns) + (groupCount % Columns > 0 ? 1 : 0)) * elementSize.Height * 0.75) + (elementSize.Height * 0.25) : 0
+         );
       }
 
       #region Basic Measure/Arrange functions
